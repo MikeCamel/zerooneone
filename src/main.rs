@@ -1,18 +1,21 @@
-extern crate cipher_crypt;
+use std::io::{stdin, stdout, Read, Result, Write};
 
-use cipher_crypt::{Cipher, Caesar};
-use std::io::{self, BufRead};
+const INPUT: &[u8] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+const OUTPUT: &[u8] = b"NOPQRSTUVWXYZABCDEFGHIJKLMnopqrstuvwxyzabcdefghijklm";
 
-fn main() {
-    
-    println!("Enter plaintext.");
-    let plaintext = io::stdin().lock().lines().next().unwrap().unwrap();
-    println!("Enter offset");
-    let offset_str = io::stdin().lock().lines().next().unwrap().unwrap();
-    let offset = offset_str.parse::<usize>().unwrap();
+fn main() -> Result<()> {
+    for result in stdin().bytes() {
+        let input = result?;
 
-    let c = Caesar::new(offset);
-    let ciphertext = c.encrypt(&plaintext).unwrap();
-    
-    println!("Your ciphertext is : {}", &ciphertext);
+        // If the input is in the Latin alphabet, do ROT13.
+        // Otherwise, output the input unmodified.
+        let output = match INPUT.iter().position(|b| b == &input) {
+            Some(index) => OUTPUT[index],
+            None => input,
+        };
+
+        stdout().write_all(&[output])?;
+    }
+
+    Ok(())
 }
